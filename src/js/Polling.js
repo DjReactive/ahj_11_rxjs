@@ -4,7 +4,7 @@ import AppFunc from './AppFunc';
 
 export default class Polling {
   constructor() {
-    this.serverURL = 'https://ahj-rxjs-server1.herokuapp.com:7070';
+    this.serverURL = 'https://ahj-rxjs-server1.herokuapp.com';
     this.messages = null;
     this.loader = null;
     this.feed = document.getElementById('feed');
