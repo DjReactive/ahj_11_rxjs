@@ -1,5 +1,5 @@
 import { ajax } from 'rxjs/ajax';
-import { map, interval, catchError } from 'rxjs';
+import { map, interval } from 'rxjs';
 import AppFunc from './AppFunc';
 
 export default class Polling {
@@ -17,35 +17,34 @@ export default class Polling {
     updater$.pipe(
       map(() => {
         this.addLoader();
-        ajax.getJSON(this.serverURL + '/messages/unread')
-        .pipe(map(value => value.messages))
-        .subscribe(value => this.update(value), err => this.update([]));
-      })
+        ajax.getJSON(`${this.serverURL}/messages/unread`)
+          .pipe(map((value) => value.messages))
+          .subscribe((value) => this.update(value), () => this.update([]));
+      }),
     ).subscribe();
   }
 
   update(messages) {
     this.removeLoader();
     if (JSON.stringify(messages) === JSON.stringify(this.messages)) return;
-    messages.forEach(m => {
-      this.msgFeed.insertAdjacentElement('afterbegin', this.addMsgElement(m));
+    messages.forEach((m) => {
+      this.msgFeed.insertAdjacentElement('afterbegin', Polling.addMsgElement(m));
     });
     this.messages = messages;
   }
 
-  addMsgElement(message) {
+  static addMsgElement(message) {
     const msg = document.createElement('div');
-    msg.innerHTML =
-    `<div class="feed__message" id="${message.id}">
-      <div class="message__author">${this.replacer(message.from, 24)}</div>
-      <div class="message__title">${this.replacer(message.subject)}</div>
+    msg.innerHTML = `<div class="feed__message" id="${message.id}">
+      <div class="message__author">${Polling.replacer(message.from, 24)}</div>
+      <div class="message__title">${Polling.replacer(message.subject)}</div>
       <div class="message__created">${AppFunc.getFormatedDate(message.received)}</div>
     </div>`;
     return msg;
   }
 
-  replacer(title, count = 15) {
-    if (title.length > count) return title.substr(0, count) + '...';
+  static replacer(title, count = 15) {
+    if (title.length > count) return `${title.substr(0, count)}...`;
     return title;
   }
 
